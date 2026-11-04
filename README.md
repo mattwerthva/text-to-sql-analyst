@@ -10,6 +10,8 @@ CapEx-planning team actually asks. All data is fictitious.
 
 ![pipeline](https://img.shields.io/badge/pipeline-NL%20%E2%86%92%20SQL%20%E2%86%92%20execute%20%E2%86%92%20narrative-1f2937)
 
+https://github.com/user-attachments/assets/1ae12621-0726-4295-b340-d5a313d72cce
+
 ---
 
 ## What it does (the pipeline)
