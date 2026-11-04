@@ -1,0 +1,27 @@
+services:
+  postgres:
+    # pgvector image = stock Postgres 17 + the `vector` extension preinstalled.
+    # Swap for `postgres:17` if you ever want vanilla.
+    image: pgvector/pgvector:pg17
+    container_name: text_to_sql_pg
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      # host:container — publishes PG to localhost so native (non-container)
+      # services like the FastAPI backend or DBeaver can connect at localhost:5432.
+      - "5432:5432"
+    volumes:
+      # Named volume → data persists across `down`/`up`/reboots.
+      # Managed by Docker on the host (avoids Mac bind-mount permission pain).
+      - pg_data:/var/lib/postgresql/data
+      # Files in /docker-entrypoint-initdb.d run ONCE, on first boot of an
+      # empty data volume. Great for seeding. Re-run: `down -v` then `up`.
+      - ./seed.sql:/docker-entrypoint-initdb.d/01_seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pg_data:
