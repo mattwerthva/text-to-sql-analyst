@@ -6,7 +6,7 @@ SQL and a hand-written *golden* query (defined below), and
 (3) check the two result sets match, order-insensitive.
 
 Most demos stop at "it works when I try it." An eval turns that into a
-measurable claim: N/6 questions produce SQL whose results match ground truth.
+measurable claim: N/7 questions produce SQL whose results match ground truth.
 The questions here are NOT the few-shot examples the model was shown — so this
 is a real test of schema understanding, not recall.
 
@@ -121,6 +121,23 @@ EVAL_CASES: list[tuple[str, str, str]] = [
         JOIN inspections i ON i.asset_id = a.id
         WHERE c.region = 'NYC'
         ORDER BY a.id, i.inspection_date DESC
+        """,
+    ),
+    (
+        # Mirrors the UI's "failing early" example. The answer depends on the
+        # `reason` label; a model that instead derives age from install_date
+        # gets meaningless (zero or negative) ages and a different result set.
+        "P7 early-failure by make/model",
+        "Which makes and models are failing early? For each (make, model) with at least "
+        "one completed early-failure replacement, return exactly three columns: make, "
+        "model, early_failures (the count).",
+        """
+        SELECT a.make, a.model, COUNT(*) AS early_failures
+        FROM work_orders w
+        JOIN assets a ON a.id = w.asset_id
+        WHERE w.type = 'replacement' AND w.status = 'completed'
+          AND w.reason = 'early_failure'
+        GROUP BY a.make, a.model
         """,
     ),
 ]

@@ -6,7 +6,7 @@ dataset rewards (anti-joins, date math, GROUPING SETS, DISTINCT ON, cents→usd)
 
 IMPORTANT: the model generates every query ON THE FLY from the schema — these
 examples teach style, not answers. They are deliberately DIFFERENT questions
-from the six eval questions in `evals/run_evals.py`, so the eval
+from the eval questions in `evals/run_evals.py`, so the eval
 remains a real test on unseen questions (not a lookup of what we showed it).
 """
 
@@ -26,14 +26,21 @@ TABLES
          make, model, serial, install_date DATE)
   inspections(id, asset_id -> assets.id, inspection_date DATE, passed BOOLEAN)
       ~108k rows.
-  work_orders(id, asset_id -> assets.id, type, status, scheduled_date DATE,
+  work_orders(id, asset_id -> assets.id, type, status, reason, scheduled_date DATE,
               cost_cents, created_at TIMESTAMPTZ)
       type   in ('replacement', 'maintenance')
       status in ('scheduled', 'completed', 'cancelled')
+      reason in ('early_failure', 'end_of_life') for replacements; NULL for maintenance
 
 USEFUL FACTS
   - "Past expected life / end-of-life" means:
         install_date + make_interval(years => et.expected_lifespan_years) < CURRENT_DATE
+  - "Failing early" / "early failure" means a completed replacement with
+        reason = 'early_failure'; the alternative is reason = 'end_of_life'.
+  - assets.install_date is when the CURRENTLY installed unit went in — it is
+    reset by each completed replacement. It therefore says nothing about how
+    long a REPLACED unit lasted: never compute age-at-replacement as
+    scheduled_date - install_date. Use reason to classify replacements.
   - Dollar amounts: divide *_cents by 100.0 and alias as *_usd.
   - "No scheduled replacement" / "missing inspection" are ANTI-JOINs
     (LEFT JOIN … WHERE … IS NULL, or NOT EXISTS).

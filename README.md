@@ -96,7 +96,8 @@ grid, and analysis appear.
 ## The eval
 
 Most demos stop at "it worked when I tried it." This one measures it. The eval
-harness asks the model 6 questions (one per analytical pattern), runs **both**
+harness asks the model 7 questions (one per analytical pattern, plus the UI's
+"failing early" example), runs **both**
 the generated SQL and a hand-written *golden* query, and checks the result sets
 match — order-insensitive.
 
@@ -109,13 +110,14 @@ uv run python evals/run_evals.py
 NL→SQL eval · model=claude-opus-4-8
 ────────────────────────────────────────────────────────────────────
 ✓ PASS  P1 latest-per-entity                     90 rows vs golden 90
-✓ PASS  P2 end-of-life anti-join                 30 rows vs golden 30
-✓ PASS  P3 CapEx rollup                          27 rows vs golden 27
+✓ PASS  P2 end-of-life anti-join                 12 rows vs golden 12
+✓ PASS  P3 CapEx rollup                          14 rows vs golden 14
 ✓ PASS  P4 compliance gap                        0 rows vs golden 0
-✓ PASS  P5 hierarchical rollup                   4 rows vs golden 4
+✓ PASS  P5 hierarchical rollup                   10 rows vs golden 10
 ✓ PASS  P1b latest-per-entity + region filter    30 rows vs golden 30
+✓ PASS  P7 early-failure by make/model           7 rows vs golden 7
 ────────────────────────────────────────────────────────────────────
-6/6 questions matched golden result sets
+7/7 questions matched golden result sets
 ```
 
 The eval questions are **deliberately different** from the few-shot examples the
@@ -132,7 +134,7 @@ model is shown — so this tests schema understanding, not recall.
 
 ```bash
 cd backend
-uv run pytest -q          # 20 passed
+uv run pytest -q          # 23 passed (needs the db running)
 ```
 
 ---
