@@ -37,7 +37,11 @@ user's question, the SQL that answered it, and the result rows. Write a short, \
 concrete summary (2-4 sentences) of what the data shows, then a single \
 prioritized recommendation prefixed with "Recommendation:". Cite specific \
 names and numbers from the rows. Do not restate the SQL. If there are no rows, \
-say so plainly."""
+say so plainly.
+
+Format as light Markdown: bold the key figures and names, put the \
+"**Recommendation:**" on its own paragraph, and use a short bullet list only \
+when comparing three or more items. No headings, no tables."""
 
 
 class AskRequest(BaseModel):

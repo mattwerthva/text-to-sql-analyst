@@ -1,5 +1,24 @@
 import { useRef, useState } from "react";
+import ReactMarkdown, { type Components } from "react-markdown";
 import { askStream, type AskEvent } from "./lib/api";
+
+// The narrative model writes light Markdown. react-markdown turns it into React
+// elements (no HTML string, so no injection path from model output); plain
+// prose is valid Markdown too, so either style renders. Tailwind's preflight
+// strips list bullets and heading sizes, so each element is styled here rather
+// than pulling in the typography plugin for one panel.
+const MARKDOWN_COMPONENTS: Components = {
+  p: ({ children }) => <p className="mb-3 last:mb-0">{children}</p>,
+  strong: ({ children }) => <strong className="font-semibold text-slate-900">{children}</strong>,
+  ul: ({ children }) => <ul className="mb-3 list-disc space-y-1 pl-5">{children}</ul>,
+  ol: ({ children }) => <ol className="mb-3 list-decimal space-y-1 pl-5">{children}</ol>,
+  h1: ({ children }) => <h3 className="mb-2 font-semibold text-slate-900">{children}</h3>,
+  h2: ({ children }) => <h3 className="mb-2 font-semibold text-slate-900">{children}</h3>,
+  h3: ({ children }) => <h3 className="mb-2 font-semibold text-slate-900">{children}</h3>,
+  code: ({ children }) => (
+    <code className="rounded bg-slate-100 px-1 py-0.5 text-xs">{children}</code>
+  ),
+};
 
 // First three are a deliberate progression of insight — spend → diagnose →
 // act — so a first-time user can watch the analysis deepen. The rest show
@@ -172,10 +191,12 @@ export default function App() {
                 <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
                   Analysis
                 </h2>
-                <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-800">
-                  {result.narrative}
-                  {running && <span className="ml-0.5 animate-pulse">▋</span>}
-                </p>
+                <div className="text-sm leading-relaxed text-slate-800">
+                  <ReactMarkdown components={MARKDOWN_COMPONENTS}>
+                    {result.narrative}
+                  </ReactMarkdown>
+                  {running && <span className="animate-pulse">▋</span>}
+                </div>
               </section>
             )}
           </div>
